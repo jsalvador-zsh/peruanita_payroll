@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Heredar vista form de contrato para agregar campos de planilla -->
+    <record id="view_hr_contract_form_inherit_payroll" model="ir.ui.view">
+        <field name="name">hr.contract.form.inherit.payroll</field>
+        <field name="model">hr.contract</field>
+        <field name="inherit_id" ref="hr_contract.hr_contract_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar página de Configuración de Planilla después de Información -->
+            <xpath expr="//page[@name='information']" position="after">
+                <page string="Configuración de Planilla" name="payroll_config">
+                    <group>
+                        <group string="Bonificaciones">
+                            <field name="night_bonus" widget="monetary"/>
+                            <field name="other_bonus" widget="monetary"/>
+                        </group>
+                        <group string="Descuentos">
+                            <field name="fifth_category" widget="monetary"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Aportes del Empleador">
+                            <field name="essalud_percentage"/>
+                            <field name="has_sctr"/>
+                            <field name="sctr_percentage" invisible="not has_sctr"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
