@@ -99,7 +99,7 @@
                 </header>
                 <sheet>
                     <div class="oe_title">
-                        <span class="o_form_label" invisible="state == 'draft'">Planilla del mes </span>
+                        <span class="o_form_label" invisible="state == 'draft'">Registro de nómina mensual </span>
                         <h1 class="d-flex">
                             <field name="name" readonly="1"/>
                         </h1>
@@ -468,7 +468,7 @@
     <!-- Menú Principal -->
     <menuitem
         id="menu_hr_payroll_root"
-        name="Planilla"
+        name="Nómina"
         web_icon="peruanita_payroll,static/description/icon.png"
         sequence="75" />
 

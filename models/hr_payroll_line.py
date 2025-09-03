@@ -36,7 +36,7 @@ class HrPayrollLine(models.Model):
     night_bonus = fields.Float(string='Bonificación Nocturna', compute='_compute_night_bonus', store= True , digits=(10,2))
     medical_rest_amount = fields.Float(string='Monto Descanso Médico', default=0.0, store=True, compute='_compute_medical_rest_amount', digits=(10,2))
     other_bonus = fields.Float(string='Otras Bonificaciones', digits=(10,2), default=0.0)
-    vacation_amount = fields.Float(string='Monto Vacaciones', digits=(10,2), default=0.0)
+    vacation_amount = fields.Float(string='Monto Vacaciones', compute='_compute_vacation_amount', store=True, digits=(10,2))
     overtime_amount = fields.Float(string='Horas Extras', digits=(10,2), default=0.0)
     
     # Total Ingresos
@@ -50,10 +50,12 @@ class HrPayrollLine(models.Model):
     afp_insurance = fields.Float(string='AFP Seguro', compute='_compute_pension_discounts', store=True, digits=(10,2))
     afp_commission = fields.Float(string='AFP Comisión', compute='_compute_pension_discounts', store=True, digits=(10,2))
     afp_total = fields.Float(string='Total AFP', compute='_compute_pension_discounts', store=True, digits=(10,2))
-    
+    afp_taxable_base = fields.Float('Base Imponible AFP', compute='_compute_taxable_bases', store=True)
+
     # DESCUENTOS - ONP
     onp_discount = fields.Float(string='ONP', compute='_compute_pension_discounts', store=True, digits=(10,2))
-    
+    onp_taxable_base = fields.Float('Base Imponible ONP', compute='_compute_taxable_bases', store=True)
+
     # OTROS DESCUENTOS
     advance_gratification = fields.Float(string='Adelanto Gratificación', digits=(10,2), default=0.0)
     fifth_category = fields.Float(string='5ta Categoría', digits=(10,2), default=0.0)
@@ -95,15 +97,33 @@ class HrPayrollLine(models.Model):
             else:
                 line.night_bonus = 0.0
 
-    @api.depends('salary', 'family_allowance', 'medical_rest_days')
+    @api.depends('contract_id', 'medical_rest_days')
     def _compute_medical_rest_amount(self):
         for line in self:
-            if line.medical_rest_days > 0:
-                taxable_base = line.salary + line.family_allowance
-                daily_amount = taxable_base / 30
-                line.medical_rest_amount = round(daily_amount * line.medical_rest_days, 2)
+            if line.medical_rest_days > 0 and line.contract_id:
+                # Usar solo el sueldo base del contrato (como en Excel)
+                daily_wage = line.contract_id.wage / 30
+                line.medical_rest_amount = round(daily_wage * line.medical_rest_days, 2)
             else:
                 line.medical_rest_amount = 0.0
+
+    @api.depends('taxable_base', 'vacation_days')
+    def _compute_vacation_amount(self):
+        """
+        Cálculo automático de monto de vacaciones
+        Fórmula: Sueldo / 30 * Días de Vacaciones
+        
+        Nota: Se calcula sobre sueldo + asignación familiar antes de calcular 
+        la base imponible (que excluye las vacaciones)
+        """
+        for line in self:
+            if line.vacation_days > 0:
+                # Base para vacaciones: sueldo + asignación familiar
+                vacation_base = line.taxable_base
+                daily_amount = vacation_base / 30
+                line.vacation_amount = round(daily_amount * line.vacation_days, 2)
+            else:
+                line.vacation_amount = 0.0
 
     @api.depends('salary', 'family_allowance', 'night_bonus', 'medical_rest_amount', 
                  'other_bonus', 'vacation_amount', 'overtime_amount')
@@ -119,7 +139,7 @@ class HrPayrollLine(models.Model):
                 line.overtime_amount
             )
     
-    @api.depends('total_income', 'other_bonus', 'medical_rest_amount', 'vacation_amount')
+    @api.depends('total_income', 'night_bonus', 'medical_rest_amount')
     def _compute_taxable_base(self):
         """
         Calcula la base imponible según las reglas del Excel:
@@ -127,8 +147,14 @@ class HrPayrollLine(models.Model):
         Para efectos de AFP/ONP, se excluyen bonificaciones extraordinarias
         """
         for line in self:
-            # La base imponible excluye las bonificaciones extraordinarias
-            line.taxable_base = line.total_income - line.other_bonus
+            # Base AFP: Total Ingresos - Bonificaciones
+            line.afp_taxable_base = line.total_income - line.night_bonus
+            
+            # Base ONP: Total Ingresos - Bonificaciones - Descanso Médico  
+            line.onp_taxable_base = line.total_income - line.night_bonus - line.medical_rest_amount
+            
+            # Mantener taxable_base para compatibilidad (usar base AFP)
+            line.taxable_base = line.afp_taxable_base
     
     @api.depends('taxable_base', 'pension_system', 'afp_id', 'commission_type')
     def _compute_pension_discounts(self):
@@ -146,8 +172,9 @@ class HrPayrollLine(models.Model):
                 
             elif line.pension_system == 'onp':
                 # Cálculo ONP: 13% sobre base imponible
+                onp_base = line.total_income - line.night_bonus - line.medical_rest_amount
                 onp_percentage = float(line.env['ir.config_parameter'].sudo().get_param('hr.payroll.onp_percentage', '13.0'))
-                line.onp_discount = round(line.taxable_base * (onp_percentage / 100), 2)
+                line.onp_discount = round(onp_base * (onp_percentage / 100), 2)
                 line.afp_fund = 0.0
                 line.afp_insurance = 0.0
                 line.afp_commission = 0.0
@@ -205,10 +232,8 @@ class HrPayrollLine(models.Model):
             # Obtener configuración actual
             settings = line.env['hr.payroll.settings'].get_current_settings()
             
-            # EsSalud: Solo sobre el salary (no incluye asignación familiar ni vacaciones)
-            essalud_base = line.salary if line.salary > 0 else 0.0
-            
-            # EsSalud (9% por defecto)
+            # EsSalud: Base = Sueldo + Vacaciones (como en Excel)
+            essalud_base = line.salary + line.vacation_amount
             essalud_percentage = line.contract_id.essalud_percentage if line.contract_id else settings.essalud_percentage
             if essalud_percentage == 0:
                 essalud_percentage = settings.essalud_percentage
