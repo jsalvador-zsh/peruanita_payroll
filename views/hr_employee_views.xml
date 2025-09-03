@@ -41,9 +41,11 @@
                 <field name="code" />
                 <field name="fund_percentage" />
                 <field name="insurance_percentage" />
-                <field name="commission_percentage" />
+                <field name="commission_flow_percentage" />
+                <field name="commission_mixed_percentage" />
                 <field name="commission_type" />
-                <field name="total_percentage" />
+                <field name="total_flow_percentage" class="text-primary"/>
+                <field name="total_mixed_percentage" class="text-info"/>
                 <field name="active" />
             </list>
         </field>
@@ -58,18 +60,42 @@
                 <sheet>
                     <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger"
                         invisible="active" />
-                    <group>
-                        <group>
+                    <div class="oe_title">
+                        <h1>
                             <field name="name" />
-                            <field name="code" />
-                            <field name="commission_type" />
+                        </h1>
+                        <h2>
+                            <field name="code" class="text-muted"/>
+                        </h2>
+                    </div>
+                    
+                    <group>
+                        <group string="Información General">
                             <field name="active" invisible="1" />
+                            <field name="commission_type" />
+                            <field name="tope_amount" widget="monetary"/>
                         </group>
-                        <group>
+                        <group string="Porcentajes de Descuento">
                             <field name="fund_percentage" />
                             <field name="insurance_percentage" />
-                            <field name="commission_percentage" />
-                            <field name="total_percentage" />
+                            <field name="commission_flow_percentage" />
+                            <field name="commission_mixed_percentage" />
+                        </group>
+                    </group>
+                    
+                    <separator string="Totales Calculados"/>
+                    <group>
+                        <group>
+                            <field name="total_flow_percentage" class="fw-bold text-primary"/>
+                            <div class="text-muted">
+                                <i>Fondo + Seguro + Comisión Flujo</i>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="total_mixed_percentage" class="fw-bold text-info"/>
+                            <div class="text-muted">
+                                <i>Fondo + Seguro + Comisión Mixta</i>
+                            </div>
                         </group>
                     </group>
                 </sheet>
@@ -87,7 +113,8 @@
                 Crear nuevo sistema AFP
             </p>
             <p>
-                Configure los sistemas de AFP con sus porcentajes correspondientes.
+                Configure los sistemas de AFP con sus porcentajes correspondientes actualizados para 2025.
+                Los cálculos incluyen fondos, seguros y comisiones según el tipo (Flujo o Mixta).
             </p>
         </field>
     </record>
@@ -97,6 +124,6 @@
         name="Sistemas AFP"
         parent="peruanita_payroll.menu_hr_payroll_configuration"
         action="action_hr_afp_pension"
-        sequence="10" />
+        sequence="20" />
 
 </odoo>
