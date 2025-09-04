@@ -158,7 +158,8 @@
                                     <field name="sequence" widget="handle" />
                                     <field name="employee_id" readonly="1" class="col-employee" />
                                     <field name="identification_id" readonly="1" />
-                                    <field name="job_id" readonly="1" optional="show" class="col-job" />
+                                    <field name="job_id" readonly="1" optional="show"
+                                        class="col-job" />
                                     <field name="department_id" readonly="1" optional="hide" />
 
                                     <!-- Días y Asistencia -->
@@ -235,6 +236,11 @@
                                     <field name="total_employer_contribution" widget="monetary"
                                         readonly="1"
                                         optional="hide" />
+                                    <!-- BOTÓN DE BOLETA DE PAGO -->
+                                    <button name="action_print_payslip" type="object"
+                                        string="Boleta PDF"
+                                        class="btn-primary btn-sm" icon="fa-file-pdf-o"
+                                        title="Descargar Boleta de Pago" />
                                 </list>
                             </field>
                             <group name="note_group" col="6" class="mt-2 mt-md-0">
