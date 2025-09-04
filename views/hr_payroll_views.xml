@@ -557,7 +557,7 @@
     <menuitem
         id="menu_hr_payroll_root"
         name="Nómina"
-        web_icon="peruanita_payroll,static/description/icon.png"
+        web_icon="peruanita_payroll,static/description/icon_module.png"
         sequence="75" />
 
     <!-- Menú de Planillas -->
