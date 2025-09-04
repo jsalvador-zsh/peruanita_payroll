@@ -6,7 +6,7 @@ class HrContract(models.Model):
     _inherit = 'hr.contract'
     
     # Configuración de bonificaciones regulares
-    night_bonus = fields.Float(string='Bonificación Nocturna', digits=(10,2), default=0.0)
+    night_bonus = fields.Float(string='Bonificación', digits=(10,2), default=0.0)
     other_bonus = fields.Float(string='Otras Bonificaciones', digits=(10,2), default=0.0)
     
     # Configuración de descuentos fijos

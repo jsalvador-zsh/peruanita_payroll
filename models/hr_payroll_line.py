@@ -33,7 +33,7 @@ class HrPayrollLine(models.Model):
     # INGRESOS
     salary = fields.Float(string='Sueldo Base', digits=(10,2), required=True)
     family_allowance = fields.Float(string='Asignación Familiar', digits=(10,2), default=0.0)
-    night_bonus = fields.Float(string='Bonificación Nocturna', compute='_compute_night_bonus', store= True , digits=(10,2))
+    night_bonus = fields.Float(string='Bonificación', compute='_compute_night_bonus', store= True , digits=(10,2))
     medical_rest_amount = fields.Float(string='Monto Descanso Médico', default=0.0, store=True, compute='_compute_medical_rest_amount', digits=(10,2))
     other_bonus = fields.Float(string='Otras Bonificaciones', digits=(10,2), default=0.0)
     vacation_amount = fields.Float(string='Monto Vacaciones', compute='_compute_vacation_amount', store=True, digits=(10,2))
@@ -312,4 +312,94 @@ class HrPayrollLine(models.Model):
             'employer_contribution': self.total_employer_contribution,
             'pension_system': dict(self._fields['pension_system'].selection).get(self.pension_system, ''),
             'afp': self.afp_id.name if self.afp_id else '',
+        }
+    
+    def action_print_payslip(self):
+        """Generar boleta de pago individual"""
+        self.ensure_one()
+        return self.env.ref('peruanita_payroll.action_report_payslip').report_action(self)
+
+    def get_payslip_data(self):
+        """Obtener datos formateados para la boleta con codificación UTF-8 correcta"""
+        self.ensure_one()
+        
+        # Función helper para limpiar texto y asegurar UTF-8
+        def clean_text(text):
+            """Limpiar y asegurar codificación correcta"""
+            if not text:
+                return ''
+            # Asegurar que el texto esté en UTF-8
+            if isinstance(text, str):
+                return text.strip()
+            return str(text).strip()
+        
+        # Obtener texto del sistema de pensiones
+        pension_text = ''
+        if self.pension_system == 'onp':
+            pension_text = 'ONP'
+        elif self.pension_system == 'afp':
+            pension_text = 'AFP'
+        
+        # Formatear período en español
+        period_text = ''
+        if self.payroll_id.date_period:
+            months_spanish = {
+                1: 'ENERO', 2: 'FEBRERO', 3: 'MARZO', 4: 'ABRIL',
+                5: 'MAYO', 6: 'JUNIO', 7: 'JULIO', 8: 'AGOSTO',
+                9: 'SEPTIEMBRE', 10: 'OCTUBRE', 11: 'NOVIEMBRE', 12: 'DICIEMBRE'
+            }
+            month_num = self.payroll_id.date_period.month
+            year = self.payroll_id.date_period.year
+            period_text = f"{months_spanish.get(month_num, 'MES')} {year}"
+        
+        return {
+            # Datos de la empresa
+            'company_name': clean_text(self.payroll_id.company_id.name) or 'PERUANITA E.I.R.L.',
+            'company_vat': clean_text(self.payroll_id.company_id.vat) or '20455005869',
+            'company_address': clean_text(f"{self.payroll_id.company_id.street or ''} {self.payroll_id.company_id.street2 or ''}") or 'Calle Francia A 9 - APTASA Cerro Colorado',
+            
+            # Datos del empleado
+            'employee_name': clean_text(self.employee_id.name) or '',
+            'employee_identification': clean_text(self.identification_id) or '',
+            'job_title': clean_text(self.job_id.name if self.job_id else '') or '',
+            'date_start': self.contract_id.date_start.strftime('%d/%m/%y') if self.contract_id and self.contract_id.date_start else '',
+            'employee_type': 'EMPLEADO',
+            'department': clean_text(self.department_id.name if self.department_id else '') or 'PRODUCCIÓN',
+            'pension_system': pension_text,
+            'cuspp': clean_text(self.cuspp) or '',
+            
+            # Período
+            'period': period_text,
+            
+            # Días trabajados
+            'worked_days': f"{self.worked_days:.2f}",
+            'vacation_days': f"{self.vacation_days:.2f}",
+            'tardiness_count': f"{self.tardiness_count:.2f}",
+            
+            # Ingresos
+            'basic_salary': f"{self.taxable_base:.2f}",
+            'family_allowance': f"{self.family_allowance:.2f}",
+            'vacation_pay': f"{self.vacation_amount:.2f}",
+            'productivity_bonus': f"{self.other_bonus:.2f}",
+            'medical_rest': f"{self.medical_rest_amount:.2f}",
+            'overtime': f"{self.overtime_amount:.2f}",
+            'night_bonus': f"{self.night_bonus:.2f}",
+            'total_income': f"{self.total_income:.2f}",
+            
+            # Descuentos
+            'onp_discount': f"{self.onp_discount:.2f}",
+            'afp_fund': f"{self.afp_fund:.2f}",
+            'afp_insurance': f"{self.afp_insurance:.2f}",
+            'afp_commission': f"{self.afp_commission:.2f}",
+            'fifth_category': f"{self.fifth_category:.2f}",
+            'advance_payment': f"{self.advance_payment:.2f}",
+            'tardiness_discount': f"{self.tardiness_discount:.2f}",
+            'total_discount': f"{self.total_discount:.2f}",
+            
+            # Aportes del empleador
+            'essalud': f"{self.essalud:.2f}",
+            'total_contributions': f"{self.total_employer_contribution:.2f}",
+            
+            # Neto a pagar
+            'net_pay': f"{self.net_pay:.2f}",
         }

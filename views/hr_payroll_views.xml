@@ -90,18 +90,35 @@
                         class="btn-primary" invisible="state not in ['draft','calculated']" />
                     <button name="action_validate" type="object" string="Validar"
                         class="btn-success" invisible="state != 'calculated'" />
+                    <button name="action_mark_as_paid" type="object" string="Marcar como Pagado"
+                        class="btn-warning" invisible="state != 'validated'" />
                     <button name="action_set_to_draft" type="object" string="Volver a Borrador"
-                        invisible="state not in ['calculated','validated']" />
+                        invisible="state not in ['calculated','validated']"
+                        confirm="¿Está seguro de regresar a borrador? Se perderán las validaciones." />
                     <button name="action_cancel" type="object" string="Cancelar"
-                        invisible="state not in ['draft','calculated','validated']" />
+                        invisible="state not in ['draft','calculated','validated']"
+                        confirm="¿Está seguro de cancelar esta planilla?" />
                     <field name="state" widget="statusbar"
                         statusbar_visible="draft,calculated,validated,paid" />
                 </header>
+                <!-- Resumen de pago -->
+                <div class="alert alert-info" role="alert" invisible="state != 'validated'">
+                    <strong><i class="fa fa-exclamation-circle" aria-hidden="true"></i> Planilla
+                    Validada:</strong> Esta planilla está validada y no se puede modificar. Complete
+                    la información de pago para marcar como pagado. </div>
+                <div class="alert alert-success" role="alert" invisible="state != 'paid'">
+                    <strong><i class="fa fa-check-circle" aria-hidden="true"></i> Planilla Pagada:</strong>
+                    Esta planilla ha sido pagada y es de solo lectura. </div>
                 <sheet>
+                    <widget name="web_ribbon" title="PAGADO" bg_color="text-bg-success"
+                        invisible="state != 'paid'" />
+                    <widget name="web_ribbon" title="CANCELADO" bg_color="text-bg-danger"
+                        invisible="state != 'cancelled'" />
                     <div class="oe_title">
-                        <span class="o_form_label" invisible="state == 'draft'">Registro de nómina mensual </span>
+                        <span class="o_form_label" invisible="state == 'draft'">Registro de nómina
+                            mensual </span>
                         <h1 class="d-flex">
-                            <field name="name" readonly="1"/>
+                            <field name="name" readonly="1" />
                         </h1>
                     </div>
                     <group>
@@ -116,7 +133,23 @@
                             <field name="currency_id" readonly="1" />
                         </group>
                     </group>
-
+                    <!-- Información de Control de Estados -->
+                    <group>
+                        <group string="Control de Estados"
+                            invisible="state in ('draft','calculated')">
+                            <field name="validated_by" readonly="1" invisible="not validated_by" />
+                            <field name="validated_date" readonly="1" invisible="not validated_date" />
+                            <field name="paid_by" readonly="1" invisible="not paid_by" />
+                            <field name="paid_date" readonly="1" invisible="not paid_date" />
+                        </group>
+                        <!-- Información de Pago -->
+                        <group string="Información de Pago"
+                            invisible="state not in ('validated','paid')">
+                            <field name="payment_method" />
+                            <field name="payment_reference"
+                                placeholder="Ej: Transferencia N° 001-2025" />
+                        </group>
+                    </group>
                     <notebook>
                         <page string="Líneas de Planilla">
                             <field name="payroll_line_ids">
@@ -134,14 +167,15 @@
                                     <field name="vacation_days" optional="hide" />
 
                                     <!-- Ingresos -->
-                                    <field name="salary"  />
-                                    <field name="family_allowance"  />
+                                    <field name="salary" />
+                                    <field name="family_allowance" />
                                     <field name="night_bonus" optional="show" />
                                     <field name="medical_rest_amount" optional="hide" />
                                     <field name="other_bonus" />
                                     <field name="vacation_amount" optional="show" />
                                     <field name="overtime_amount" optional="show" />
-                                    <field name="total_income" readonly="1" class="font-bold text-primary" />
+                                    <field name="total_income" readonly="1"
+                                        class="font-bold text-primary" />
                                     <!-- Base Imponible -->
                                     <field name="taxable_base" readonly="1"
                                         optional="show"
@@ -167,12 +201,12 @@
                                         optional="show" />
 
                                     <!-- Otros Descuentos -->
-                                    <field name="advance_gratification" 
+                                    <field name="advance_gratification"
                                         optional="hide" />
                                     <field name="fifth_category" optional="show" />
                                     <field name="tardiness_discount" readonly="1"
                                         optional="show" />
-                                    <field name="judicial_retention" 
+                                    <field name="judicial_retention"
                                         optional="hide" />
                                     <field name="advance_payment" optional="show" />
 
@@ -190,6 +224,11 @@
                                     <field name="total_employer_contribution"
                                         readonly="1"
                                         optional="hide" />
+                                    <!-- BOTÓN DE BOLETA DE PAGO -->
+                                    <button name="action_print_payslip" type="object"
+                                        string="Boleta PDF"
+                                        class="btn-primary btn-sm" icon="fa-file-pdf-o"
+                                        title="Descargar Boleta de Pago" />
                                 </list>
                             </field>
                             <group name="note_group" col="6" class="mt-2 mt-md-0">
@@ -225,15 +264,22 @@
             <list string="Planillas Mensuales">
                 <field name="name" />
                 <field name="date_period" />
-                <field name="employee_count" />
-                <field name="total_income" widget="monetary" />
-                <field name="total_employee_discount" widget="monetary" />
-                <field name="total_net_pay" widget="monetary" />
-                <field name="total_employer_contribution" widget="monetary" />
-                <field name="state" widget="badge" decoration-info="state == 'draft'"
-                    decoration-warning="state == 'calculated'"
-                    decoration-success="state in ('validated','paid')"
-                    decoration-danger="state == 'cancelled'" />
+                <field name="employee_count" optional="show" />
+                <field name="total_income" widget="monetary" optional="show" />
+                <field name="total_employee_discount" widget="monetary" optional="show" />
+                <field name="total_net_pay" widget="monetary" optional="show" />
+                <field name="total_employer_contribution" widget="monetary" optional="show" />
+                <field name="total_employer_cost" widget="monetary" class="font-bold"
+                    optional="show" />
+                <field name="validated_by" optional="hide" />
+                <field name="paid_by" optional="hide" />
+                <field name="payment_method" optional="show" />
+                <field name="state" widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-primary="state == 'calculated'"
+                    decoration-warning="state == 'validated'"
+                    decoration-success="state == 'paid'"
+                    decoration-danger="state == 'cancelled'" optional="show" />
             </list>
         </field>
     </record>
@@ -278,6 +324,48 @@
                 El sistema calculará automáticamente AFP, ONP, EsSalud y otros descuentos usando los
                 parámetros actualizados 2025.
             </p>
+        </field>
+    </record>
+
+    <!-- Wizard para marcar como pagado -->
+    <record id="view_payroll_payment_wizard" model="ir.ui.view">
+        <field name="name">payroll.payment.wizard</field>
+        <field name="model">hr.payroll.monthly</field>
+        <field name="arch" type="xml">
+            <form string="Marcar como Pagado">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Confirmar Pago de Planilla</h1>
+                        <h2 class="text-muted">
+                            <field name="name" readonly="1" />
+                        </h2>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="payment_method" required="1" />
+                            <field name="payment_reference"
+                                placeholder="Número de transferencia, cheque, etc." />
+                        </group>
+                        <group>
+                            <field name="total_net_pay" widget="monetary" readonly="1" />
+                            <field name="employee_count" readonly="1" />
+                        </group>
+                    </group>
+
+                    <div class="alert alert-warning" role="alert">
+                        <h4>⚠️ Confirmación de Pago</h4>
+                        <p>Una vez marcada como pagada, la planilla no podrá ser modificada ni
+                            eliminada.</p>
+                        <p>Asegúrese de que todos los pagos han sido procesados correctamente.</p>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_mark_as_paid" string="Confirmar Pago" type="object"
+                        class="btn-primary" />
+                    <button string="Cancelar" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
         </field>
     </record>
 

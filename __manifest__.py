@@ -46,6 +46,9 @@
         'views/hr_payroll_views.xml',
         'views/hr_employee_views.xml',
         'views/hr_payroll_settings_views.xml',
+        'reports/paperformat.xml',
+        'reports/report_payslip_templates.xml',
+        'reports/payslip_template.xml',
     ],
         "assets": {
         "web.assets_backend": [
