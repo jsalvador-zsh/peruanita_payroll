@@ -19,26 +19,26 @@
                 <field name="vacation_days" optional="hide" />
 
                 <!-- Ingresos -->
-                <field name="salary" widget="monetary" options="{'currency_field': 'currency_id'}" />
+                <field name="salary" widget="monetary" options="{'currency_field': 'currency_id'}" optional="show" />
                 <field name="family_allowance" widget="monetary"
-                    options="{'currency_field': 'currency_id'}" />
+                    options="{'currency_field': 'currency_id'}" optional="hide" />
                 <field name="night_bonus" widget="monetary"
                     options="{'currency_field': 'currency_id'}" optional="show" />
                 <field name="medical_rest_amount" widget="monetary"
                     options="{'currency_field': 'currency_id'}" optional="hide" />
                 <field name="other_bonus" widget="monetary"
-                    options="{'currency_field': 'currency_id'}" />
+                    options="{'currency_field': 'currency_id'}" optional="hide" />
                 <field name="vacation_amount" widget="monetary"
                     options="{'currency_field': 'currency_id'}" optional="show" />
                 <field name="overtime_amount" widget="monetary"
                     options="{'currency_field': 'currency_id'}" optional="show" />
                 <field name="total_income" widget="monetary"
                     options="{'currency_field': 'currency_id'}"
-                    readonly="1" class="fw-bold text-primary" />
+                    readonly="1" class="fw-bold text-primary" optional="show" />
 
 
                 <!-- Base Imponible -->
-                <field name="taxable_base" widget="monetary" readonly="1" optional="show"
+                <field name="taxable_base" widget="monetary" readonly="1" optional="hide"
                     class="text-info" />
 
                 <!-- Sistema de Pensiones -->
@@ -57,7 +57,7 @@
 
                 <!-- Otros Descuentos -->
                 <field name="advance_gratification" widget="monetary" optional="hide" />
-                <field name="fifth_category" widget="monetary" optional="show" />
+                <field name="fifth_category" widget="monetary" optional="hide" />
                 <field name="tardiness_discount" widget="monetary" readonly="1" optional="show" />
                 <field name="judicial_retention" widget="monetary" optional="hide" />
                 <field name="advance_payment" widget="monetary" optional="show" />
