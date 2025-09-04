@@ -19,7 +19,8 @@
                 <field name="vacation_days" optional="hide" />
 
                 <!-- Ingresos -->
-                <field name="salary" widget="monetary" options="{'currency_field': 'currency_id'}" optional="show" />
+                <field name="salary" widget="monetary" options="{'currency_field': 'currency_id'}"
+                    optional="show" />
                 <field name="family_allowance" widget="monetary"
                     options="{'currency_field': 'currency_id'}" optional="hide" />
                 <field name="night_bonus" widget="monetary"
@@ -153,9 +154,9 @@
                     <notebook>
                         <page string="Líneas de Planilla">
                             <field name="payroll_line_ids">
-                                <list string="Empleados" editable="bottom">
+                                <list>
                                     <field name="sequence" widget="handle" />
-                                    <field name="employee_id" readonly="1" class="col-employee"/>
+                                    <field name="employee_id" readonly="1" class="col-employee" />
                                     <field name="identification_id" readonly="1" />
                                     <field name="job_id" readonly="1" optional="show" class="col-job" />
                                     <field name="department_id" readonly="1" optional="hide" />
@@ -167,19 +168,29 @@
                                     <field name="vacation_days" optional="hide" />
 
                                     <!-- Ingresos -->
-                                    <field name="salary" />
-                                    <field name="family_allowance" />
-                                    <field name="night_bonus" optional="show" />
-                                    <field name="medical_rest_amount" optional="hide" />
-                                    <field name="other_bonus" />
-                                    <field name="vacation_amount" optional="show" />
-                                    <field name="overtime_amount" optional="show" />
-                                    <field name="total_income" readonly="1"
-                                        class="font-bold text-primary" />
+                                    <field name="salary" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="show" />
+                                    <field name="family_allowance" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="hide" />
+                                    <field name="night_bonus" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="show" />
+                                    <field name="medical_rest_amount" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="hide" />
+                                    <field name="other_bonus" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="hide" />
+                                    <field name="vacation_amount" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="show" />
+                                    <field name="overtime_amount" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="show" />
+                                    <field name="total_income" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}"
+                                        readonly="1" class="fw-bold text-primary" optional="show" />
+
+
                                     <!-- Base Imponible -->
-                                    <field name="taxable_base" readonly="1"
-                                        optional="show"
-                                        class="font-bold text-info" />
+                                    <field name="taxable_base" widget="monetary" readonly="1"
+                                        optional="hide"
+                                        class="text-info" />
 
                                     <!-- Sistema de Pensiones -->
                                     <field name="pension_system" readonly="1" optional="show" />
@@ -187,48 +198,43 @@
                                     <field name="commission_type" readonly="1" optional="hide" />
 
                                     <!-- Descuentos AFP -->
-                                    <field name="afp_fund" readonly="1"
+                                    <field name="afp_fund" widget="monetary" readonly="1"
                                         optional="hide" />
-                                    <field name="afp_insurance" readonly="1"
+                                    <field name="afp_insurance" widget="monetary" readonly="1"
                                         optional="hide" />
-                                    <field name="afp_commission" readonly="1"
+                                    <field name="afp_commission" widget="monetary" readonly="1"
                                         optional="hide" />
-                                    <field name="afp_total" readonly="1"
+                                    <field name="afp_total" widget="monetary" readonly="1"
                                         optional="show" />
 
                                     <!-- Descuento ONP -->
-                                    <field name="onp_discount" readonly="1"
+                                    <field name="onp_discount" widget="monetary" readonly="1"
                                         optional="show" />
 
                                     <!-- Otros Descuentos -->
-                                    <field name="advance_gratification"
+                                    <field name="advance_gratification" widget="monetary"
                                         optional="hide" />
-                                    <field name="fifth_category" optional="show" />
-                                    <field name="tardiness_discount" readonly="1"
+                                    <field name="fifth_category" widget="monetary" optional="hide" />
+                                    <field name="tardiness_discount" widget="monetary" readonly="1"
                                         optional="show" />
-                                    <field name="judicial_retention"
+                                    <field name="judicial_retention" widget="monetary"
                                         optional="hide" />
-                                    <field name="advance_payment" optional="show" />
+                                    <field name="advance_payment" widget="monetary" optional="show" />
 
                                     <!-- Totales -->
-                                    <field name="total_discount" readonly="1"
-                                        class="font-bold text-danger" />
-                                    <field name="net_pay" readonly="1"
-                                        class="font-bold text-success" />
+                                    <field name="total_discount" widget="monetary" readonly="1"
+                                        class="fw-bold text-danger" />
+                                    <field name="net_pay" widget="monetary" readonly="1"
+                                        class="fw-bold text-success" />
 
                                     <!-- Aportes del Empleador -->
-                                    <field name="essalud" readonly="1"
+                                    <field name="essalud" widget="monetary" readonly="1"
                                         optional="show" />
-                                    <field name="sctr" readonly="1"
+                                    <field name="sctr" widget="monetary" readonly="1"
                                         optional="hide" />
-                                    <field name="total_employer_contribution"
+                                    <field name="total_employer_contribution" widget="monetary"
                                         readonly="1"
                                         optional="hide" />
-                                    <!-- BOTÓN DE BOLETA DE PAGO -->
-                                    <button name="action_print_payslip" type="object"
-                                        string="Boleta PDF"
-                                        class="btn-primary btn-sm" icon="fa-file-pdf-o"
-                                        title="Descargar Boleta de Pago" />
                                 </list>
                             </field>
                             <group name="note_group" col="6" class="mt-2 mt-md-0">
