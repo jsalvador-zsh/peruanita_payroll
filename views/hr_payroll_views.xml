@@ -155,9 +155,9 @@
                             <field name="payroll_line_ids">
                                 <list string="Empleados" editable="bottom">
                                     <field name="sequence" widget="handle" />
-                                    <field name="employee_id" readonly="1" />
+                                    <field name="employee_id" readonly="1" class="col-employee"/>
                                     <field name="identification_id" readonly="1" />
-                                    <field name="job_id" readonly="1" optional="show" />
+                                    <field name="job_id" readonly="1" optional="show" class="col-job" />
                                     <field name="department_id" readonly="1" optional="hide" />
 
                                     <!-- Días y Asistencia -->
