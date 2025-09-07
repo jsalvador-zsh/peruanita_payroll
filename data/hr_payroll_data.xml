@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Secuencia para Planilla -->
+        <record id="seq_hr_payroll_monthly" model="ir.sequence">
+            <field name="name">Planilla Mensual</field>
+            <field name="code">hr.payroll.monthly</field>
+            <field name="prefix">PL/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <!-- Configuración por defecto de Planilla 2025 -->
+        <record id="hr_payroll_settings_default" model="hr.payroll.settings">
+            <field name="name">Configuración de Planilla 2025</field>
+            <field name="year">2025</field>
+            <field name="rmv_amount">1130.00</field>
+            <field name="uit_amount">5350.00</field>
+            <field name="family_allowance_amount">113.00</field>
+            <field name="onp_percentage">13.00</field>
+            <field name="essalud_percentage">9.00</field>
+            <field name="sctr_percentage">1.23</field>
+            <field name="tope_prima_amount">12027.91</field>
+            <field name="active">True</field>
+        </record>
+
+        <!-- Parámetros de Configuración para 2025 (Mantener para compatibilidad) -->
+        <record id="param_rmv_2025" model="ir.config_parameter">
+            <field name="key">hr.payroll.rmv_2025</field>
+            <field name="value">1130.00</field>
+        </record>
+
+        <record id="param_uit_2025" model="ir.config_parameter">
+            <field name="key">hr.payroll.uit_2025</field>
+            <field name="value">5350.00</field>
+        </record>
+
+        <record id="param_family_allowance_2025" model="ir.config_parameter">
+            <field name="key">hr.payroll.family_allowance_2025</field>
+            <field name="value">113.00</field>
+        </record>
+
+        <record id="param_onp_percentage" model="ir.config_parameter">
+            <field name="key">hr.payroll.onp_percentage</field>
+            <field name="value">13.00</field>
+        </record>
+
+        <record id="param_essalud_percentage" model="ir.config_parameter">
+            <field name="key">hr.payroll.essalud_percentage</field>
+            <field name="value">9.00</field>
+        </record>
+
+        <record id="param_sctr_percentage" model="ir.config_parameter">
+            <field name="key">hr.payroll.sctr_percentage</field>
+            <field name="value">1.23</field>
+        </record>
+
+        <record id="param_tope_prima" model="ir.config_parameter">
+            <field name="key">hr.payroll.tope_prima</field>
+            <field name="value">12027.91</field>
+        </record>
+
+        <!-- Datos de AFP Actualizados 2025 -->
+        <record id="afp_integra" model="hr.afp.pension">
+            <field name="name">Integra</field>
+            <field name="code">IN</field>
+            <field name="fund_percentage">10.00</field>
+            <field name="insurance_percentage">1.37</field>
+            <field name="commission_flow_percentage">1.55</field>
+            <field name="commission_mixed_percentage">0.78</field>
+            <field name="commission_type">mixed</field>
+        </record>
+
+        <record id="afp_prima" model="hr.afp.pension">
+            <field name="name">Prima</field>
+            <field name="code">PR</field>
+            <field name="fund_percentage">10.00</field>
+            <field name="insurance_percentage">1.37</field>
+            <field name="commission_flow_percentage">1.60</field>
+            <field name="commission_mixed_percentage">1.25</field>
+            <field name="commission_type">flow</field>
+        </record>
+
+        <record id="afp_profuturo" model="hr.afp.pension">
+            <field name="name">Profuturo</field>
+            <field name="code">PF</field>
+            <field name="fund_percentage">10.00</field>
+            <field name="insurance_percentage">1.37</field>
+            <field name="commission_flow_percentage">1.69</field>
+            <field name="commission_mixed_percentage">1.20</field>
+            <field name="commission_type">mixed</field>
+        </record>
+
+        <record id="afp_habitat" model="hr.afp.pension">
+            <field name="name">Habitat</field>
+            <field name="code">HB</field>
+            <field name="fund_percentage">10.00</field>
+            <field name="insurance_percentage">1.37</field>
+            <field name="commission_flow_percentage">1.47</field>
+            <field name="commission_mixed_percentage">1.25</field>
+            <field name="commission_type">mixed</field>
+        </record>
+    </data>
+</odoo>

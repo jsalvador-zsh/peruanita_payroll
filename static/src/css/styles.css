@@ -1,0 +1,20 @@
+.font-bold {
+  font-weight: bold !important;
+}
+.o_list_view td.col-employee,
+.o_list_view th.col-employee {
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 3;
+    min-width: 200px !important;
+    max-width: 200px !important;
+    white-space: normal !important;
+}
+
+.o_list_view td.col-job,
+.o_list_view th.col-job {
+    min-width: 200px !important;
+    max-width: 200px !important;
+    white-space: normal !important;
+}

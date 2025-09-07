@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Template de la Boleta -->
+  <template id="report_payslip_document">
+    <t t-foreach="docs" t-as="payroll_line">
+      <t t-call="peruanita_payroll.peruanita_layout_a5_vertical">
+        <t t-set="data" t-value="payroll_line.get_payslip_data()" />
+        <t t-set="company" t-value="payroll_line.payroll_id.company_id" />
+        <t t-foreach="[1,2]" t-as="copy" t-foreach-index="i">
+            <div style="page-break-after: always;">
+            <div class="page">
+              <!-- Header de la Empresa -->
+              <div
+                style="text-align: center; border: 0.5px solid black; padding: 3px; margin-bottom: 5px;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="text-align: center; flex: 1;">
+                    <div style="margin-top: 12px; font-weight: bold; font-size: 16px;">BOLETA DE PAGO</div>
+                    <div style="font-size: 10px; margin-top: 5px;"> REMUNERACION <t
+                        t-esc="data.get('period', '')" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Información del Empleado -->
+              <table
+                style="width: 100%; font-size: 9px; border: 0.5px solid black; border-collapse: collapse; margin-bottom: 5px;">
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px; width: 30%; font-weight: bold;">Apellidos
+                    y Nombres:</td>
+                  <td style="border: 0.5px solid black; padding: 3px;">
+                    <t t-esc="data.get('employee_name', '')" />
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;">DNI:</td>
+                  <td style="border: 0.5px solid black; padding: 3px;">
+                    <t t-esc="data.get('employee_identification', '')" />
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;">Cargo /
+                    Categoria:</td>
+                  <td style="border: 0.5px solid black; padding: 3px;">
+                    <t t-esc="data.get('job_title', '')" />
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;">Fecha de
+                    ingreso:</td>
+                  <td style="border: 0.5px solid black; padding: 3px;">
+                    <t t-esc="data.get('date_start', '')" />
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;">Tipo de
+                    trabajador:</td>
+                  <td style="border: 0.5px solid black; padding: 3px;">
+                    <t t-esc="data.get('employee_type', 'EMPLEADO')" />
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;">Grupo:</td>
+                  <td style="border: 0.5px solid black; padding: 3px;">
+                    <t t-esc="data.get('department', '')" />
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;">Regimen
+                    pensionario:</td>
+                  <td style="border: 0.5px solid black; padding: 3px;">
+                    <t t-esc="data.get('pension_system', '')" />
+                  </td>
+                </tr>
+                <tr t-if="data.get('cuspp')">
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;">CUSPP:</td>
+                  <td style="border: 0.5px solid black; padding: 3px;">
+                    <t t-esc="data.get('cuspp', '')" />
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Días Trabajados -->
+              <table
+                style="width: 100%; font-size: 9px; border: 0.5px solid black; border-collapse: collapse; margin-bottom: 5px;">
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px; width: 50%; font-weight: bold;">DIAS
+                    TRABAJADOS</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('worked_days', '0.00')" />
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;">VACACIONES</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('vacation_days', '0.00')" />
+                  </td>
+                </tr>
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;">TARDANZA HORAS</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('tardiness_count', '0.00')" />
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Ingresos -->
+              <table
+                style="width: 100%; font-size: 9px; border: 0.5px solid black; border-collapse: collapse; margin-bottom: 5px;">
+                <tr style="background-color: #f0f0f0;">
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;" colspan="2">
+                    INGRESOS</td>
+                </tr>
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px;">SUELDO BASICO</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('basic_salary', '0.00')" />
+                  </td>
+                </tr>
+                <tr t-if="float(data.get('family_allowance', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">ASIGNACION FAMILIAR</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('family_allowance', '0.00')" />
+                  </td>
+                </tr>
+                <tr t-if="float(data.get('vacation_pay', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">REMUNERACION VACACIONAL</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('vacation_pay', '0.00')" />
+                  </td>
+                </tr>
+                <tr t-if="float(data.get('productivity_bonus', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">BONIF. NOCTURNIDAD</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('productivity_bonus', '0.00')" />
+                  </td>
+                </tr>
+                <tr t-if="float(data.get('medical_rest', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">DESCANSO MEDICO/SUBSIDIO</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('medical_rest', '0.00')" />
+                  </td>
+                </tr>
+                <tr t-if="float(data.get('overtime', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">HORAS EXTRAS</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('overtime', '0.00')" />
+                  </td>
+                </tr>
+                <tr t-if="float(data.get('night_bonus', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">BONO PRODUCTIVIDAD</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('night_bonus', '0.00')" />
+                  </td>
+                </tr>
+                <tr style="background-color: #f0f0f0; font-weight: bold;">
+                  <td style="border: 0.5px solid black; padding: 3px;">TOTAL INGRESOS</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('total_income', '0.00')" />
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Descuentos -->
+              <table
+                style="width: 100%; font-size: 9px; border: 0.5px solid black; border-collapse: collapse; margin-bottom: 5px;">
+                <tr style="background-color: #f0f0f0;">
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;" colspan="2">
+                    DESCUENTOS</td>
+                </tr>
+
+                <!-- ONP -->
+                <tr t-if="float(data.get('onp_discount', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">O.N.P.</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('onp_discount', '0.00')" />
+                  </td>
+                </tr>
+
+                <!-- AFP -->
+                <tr t-if="float(data.get('afp_fund', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">AFP APORTE OBLIGATORIO</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('afp_fund', '0.00')" />
+                  </td>
+                </tr>
+                <tr t-if="float(data.get('afp_commission', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">AFP COMISION SALDO</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('afp_commission', '0.00')" />
+                  </td>
+                </tr>
+                <tr t-if="float(data.get('afp_insurance', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">AFP SEGURO INDIVIDUAL</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('afp_insurance', '0.00')" />
+                  </td>
+                </tr>
+
+                <!-- Otros descuentos -->
+                <tr t-if="float(data.get('fifth_category', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">RENTA QUINTA CATEGORIA</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('fifth_category', '0.00')" />
+                  </td>
+                </tr>
+                <tr t-if="float(data.get('advance_payment', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">DESCUENTO ADMINISTRATIVO</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('advance_payment', '0.00')" />
+                  </td>
+                </tr>
+                <tr t-if="float(data.get('tardiness_discount', '0')) > 0">
+                  <td style="border: 0.5px solid black; padding: 3px;">TARDANZAS</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('tardiness_discount', '0.00')" />
+                  </td>
+                </tr>
+
+                <tr style="background-color: #f0f0f0; font-weight: bold;">
+                  <td style="border: 0.5px solid black; padding: 3px;">TOTAL DESCUENTOS</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('total_discount', '0.00')" />
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Aportes del Empleador -->
+              <table
+                style="width: 100%; font-size: 9px; border: 0.5px solid black; border-collapse: collapse; margin-bottom: 20px;">
+                <tr style="background-color: #f0f0f0;">
+                  <td style="border: 0.5px solid black; padding: 3px; font-weight: bold;" colspan="2">
+                    APORTES</td>
+                </tr>
+                <tr>
+                  <td style="border: 0.5px solid black; padding: 3px;">ESSALUD</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('essalud', '0.00')" />
+                  </td>
+                </tr>
+                <tr style="background-color: #f0f0f0; font-weight: bold;">
+                  <td style="border: 0.5px solid black; padding: 3px;">TOTAL APORTES</td>
+                  <td style="border: 0.5px solid black; padding: 3px; text-align: right;">
+                    <t t-esc="data.get('total_contributions', '0.00')" />
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Neto a Pagar -->
+              <table
+                style="width: 100%; font-size: 9px; border: 0.5px solid black; border-collapse: collapse; margin-bottom: 30px;">
+                <tr style="background-color: #e0e0e0; font-weight: bold; font-size: 12px;">
+                  <td style="border: 0.5px solid black; padding: 5px; text-align: center;">NETO A PAGAR
+                    EN SOLES</td>
+                  <td style="border: 0.5px solid black; padding: 5px; text-align: right;">
+                    <t t-esc="data.get('net_pay', '0.00')" />
+                  </td>
+                </tr>
+              </table>
+              <!-- Firmas -->
+              <table style="width: 100%; font-size: 10px; margin-top: 30px; border-collapse: collapse;">
+                <tr>
+                  <td style="width: 40%; text-align: center; vertical-align: bottom;">
+                    <div style="border-top: 1px solid black; padding-top: 3px; margin-top: 30px;">
+                      <strong>Firma del Empleador</strong>
+                    </div>
+                  </td>
+                  <td style="width: 20%;">
+                    <!-- Espacio vacío en el medio -->
+                  </td>
+                  <td style="width: 40%; text-align: center; vertical-align: bottom;">
+                    <div style="border-top: 1px solid black; padding-top: 3px; margin-top: 30px;">
+                      <strong>Firma Trabajador</strong>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </t>
+      </t>
+    </t>
+  </template>
+  <!-- Template principal -->
+  <template id="report_payslip">
+    <t t-call="web.html_container">
+      <t t-foreach="docs" t-as="doc">
+        <t t-call="peruanita_payroll.report_payslip_document" />
+      </t>
+    </t>
+  </template>
+</odoo>

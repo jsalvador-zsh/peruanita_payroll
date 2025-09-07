@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Heredar vista form de empleado para agregar campos de planilla -->
+    <record id="view_employee_form_inherit_payroll" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.payroll</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form" />
+        <field name="arch" type="xml">
+            <!-- Agregar página de Planilla después de HR Settings -->
+            <xpath expr="//page[@name='hr_settings']" position="after">
+                <page string="Datos de Planilla" name="payroll_data">
+                    <group>
+                        <group string="Sistema de Pensiones">
+                            <field name="pension_system" />
+                            <field name="afp_id" invisible="pension_system != 'afp'"
+                                required="pension_system == 'afp'" />
+                            <field name="cuspp" invisible="pension_system != 'afp'" />
+                            <field name="commission_type" invisible="pension_system != 'afp'" />
+                        </group>
+                        <group string="Beneficios y Retenciones">
+                            <field name="has_family_allowance" />
+                            <field name="is_judicial_retention" />
+                            <field name="judicial_retention_amount"
+                                invisible="not is_judicial_retention" />
+                            <field name="judicial_retention_percentage"
+                                invisible="not is_judicial_retention" />
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista Tree para AFP -->
+    <record id="view_hr_afp_pension_list" model="ir.ui.view">
+        <field name="name">hr.afp.pension.list</field>
+        <field name="model">hr.afp.pension</field>
+        <field name="arch" type="xml">
+            <list string="Sistemas AFP">
+                <field name="name" />
+                <field name="code" />
+                <field name="fund_percentage" />
+                <field name="insurance_percentage" />
+                <field name="commission_flow_percentage" />
+                <field name="commission_mixed_percentage" />
+                <field name="commission_type" />
+                <field name="total_flow_percentage" class="text-primary"/>
+                <field name="total_mixed_percentage" class="text-info"/>
+                <field name="active" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form para AFP -->
+    <record id="view_hr_afp_pension_form" model="ir.ui.view">
+        <field name="name">hr.afp.pension.form</field>
+        <field name="model">hr.afp.pension</field>
+        <field name="arch" type="xml">
+            <form string="Sistema AFP">
+                <sheet>
+                    <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger"
+                        invisible="active" />
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" />
+                        </h1>
+                        <h2>
+                            <field name="code" class="text-muted"/>
+                        </h2>
+                    </div>
+                    
+                    <group>
+                        <group string="Información General">
+                            <field name="active" invisible="1" />
+                            <field name="commission_type" />
+                            <field name="tope_amount" widget="monetary"/>
+                        </group>
+                        <group string="Porcentajes de Descuento">
+                            <field name="fund_percentage" />
+                            <field name="insurance_percentage" />
+                            <field name="commission_flow_percentage" />
+                            <field name="commission_mixed_percentage" />
+                        </group>
+                    </group>
+                    
+                    <separator string="Totales Calculados"/>
+                    <group>
+                        <group>
+                            <field name="total_flow_percentage" class="fw-bold text-primary"/>
+                            <div class="text-muted">
+                                <i>Fondo + Seguro + Comisión Flujo</i>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="total_mixed_percentage" class="fw-bold text-info"/>
+                            <div class="text-muted">
+                                <i>Fondo + Seguro + Comisión Mixta</i>
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para AFP -->
+    <record id="action_hr_afp_pension" model="ir.actions.act_window">
+        <field name="name">Sistemas AFP</field>
+        <field name="res_model">hr.afp.pension</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear nuevo sistema AFP
+            </p>
+            <p>
+                Configure los sistemas de AFP con sus porcentajes correspondientes actualizados para 2025.
+                Los cálculos incluyen fondos, seguros y comisiones según el tipo (Flujo o Mixta).
+            </p>
+        </field>
+    </record>
+
+    <!-- Menú para AFP -->
+    <menuitem id="menu_hr_afp_pension"
+        name="Sistemas AFP"
+        parent="peruanita_payroll.menu_hr_payroll_configuration"
+        action="action_hr_afp_pension"
+        sequence="20" />
+
+</odoo>

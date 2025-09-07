@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Tree para Configuración de Planilla -->
+    <record id="view_hr_payroll_settings_list" model="ir.ui.view">
+        <field name="name">hr.payroll.settings.list</field>
+        <field name="model">hr.payroll.settings</field>
+        <field name="arch" type="xml">
+            <list string="Configuraciones de Planilla">
+                <field name="name"/>
+                <field name="year"/>
+                <field name="rmv_amount" widget="monetary"/>
+                <field name="family_allowance_amount" widget="monetary"/>
+                <field name="onp_percentage"/>
+                <field name="essalud_percentage"/>
+                <field name="total_employee_cost_percentage" class="fw-bold"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" widget="boolean_toggle"/>
+                <button name="action_activate" type="object" string="Activar" 
+                        class="btn-success" invisible="active" 
+                        confirm="¿Desea activar esta configuración? Se desactivarán las demás configuraciones."/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form para Configuración de Planilla -->
+    <record id="view_hr_payroll_settings_form" model="ir.ui.view">
+        <field name="name">hr.payroll.settings.form</field>
+        <field name="model">hr.payroll.settings</field>
+        <field name="arch" type="xml">
+            <form string="Configuración de Planilla">
+                <header>
+                    <button name="action_activate" type="object" string="Activar Configuración" 
+                            class="btn-primary" invisible="active" 
+                            confirm="¿Desea activar esta configuración? Se desactivarán las demás configuraciones."/>
+                    <widget name="web_ribbon" title="Configuración Activa" bg_color="text-bg-success" invisible="not active"/>
+                    <widget name="web_ribbon" title="Inactiva" bg_color="text-bg-secondary" invisible="active"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" class="o_text_overflow" placeholder="Ej: Configuración Planilla 2025"/>
+                        </h1>
+                        <h2 class="text-muted">
+                            Año <field name="year" class="oe_inline"/>
+                        </h2>
+                    </div>
+                    
+                    <group>
+                        <group string="Información General">
+                            <field name="active"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Resumen">
+                            <field name="total_employee_cost_percentage" class="fw-bold text-primary"/>
+                            <div class="text-muted">
+                                <i>Total de aportes del empleador</i>
+                            </div>
+                        </group>
+                    </group>
+                    
+                    <notebook>
+                        <page string="Parámetros Generales">
+                            <group>
+                                <group string="Remuneraciones y Beneficios">
+                                    <field name="rmv_amount" widget="monetary"/>
+                                    <field name="uit_amount" widget="monetary"/>
+                                    <field name="family_allowance_amount" widget="monetary"/>
+                                </group>
+                                <group string="Información Adicional">
+                                    <div class="alert alert-info" role="alert">
+                                        <h4 class="alert-heading">Parámetros 2025</h4>
+                                        <p><strong>RMV:</strong> Remuneración Mínima Vital establecida por decreto</p>
+                                        <p><strong>UIT:</strong> Unidad Impositiva Tributaria para cálculos fiscales</p>
+                                        <p><strong>Asignación Familiar:</strong> Beneficio mensual por carga familiar</p>
+                                    </div>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <page string="Descuentos del Trabajador">
+                            <group>
+                                <group string="Sistema Nacional de Pensiones">
+                                    <field name="onp_percentage"/>
+                                    <div class="text-muted">
+                                        <i>Porcentaje aplicado sobre la base imponible</i>
+                                    </div>
+                                </group>
+                                <group string="Información ONP">
+                                    <div class="alert alert-warning" role="alert">
+                                        <h4 class="alert-heading">ONP - Sistema Nacional de Pensiones</h4>
+                                        <p>Base de cálculo: Total Ingresos - Bonificaciones - Descanso Médico</p>
+                                        <p>Porcentaje estándar: 13%</p>
+                                    </div>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <page string="Aportes del Empleador">
+                            <group>
+                                <group string="Seguridad Social">
+                                    <field name="essalud_percentage"/>
+                                    <field name="sctr_percentage"/>
+                                    <field name="total_employee_cost_percentage" readonly="1" class="fw-bold"/>
+                                </group>
+                                <group string="Base de Cálculo">
+                                    <div class="alert alert-info" role="alert">
+                                        <h4 class="alert-heading">Aportes del Empleador</h4>
+                                        <p><strong>Base:</strong> Sueldo + Asignación Familiar + Vacaciones</p>
+                                        <p><strong>Mínimo:</strong> No menor a la RMV</p>
+                                        <hr/>
+                                        <p><strong>EsSalud:</strong> Seguro Social de Salud (9%)</p>
+                                        <p><strong>SCTR:</strong> Seguro Complementario de Trabajo de Riesgo (1.23%)</p>
+                                    </div>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <page string="Topes y Límites AFP">
+                            <group>
+                                <group string="Administradoras de Fondos de Pensiones">
+                                    <field name="tope_prima_amount" widget="monetary"/>
+                                </group>
+                                <group string="Información AFP">
+                                    <div class="alert alert-warning" role="alert">
+                                        <h4 class="alert-heading">Topes AFP</h4>
+                                        <p><strong>Tope Prima:</strong> Límite máximo para comisión mixta</p>
+                                        <p>Solo aplica para AFP Prima con comisión tipo "Mixta"</p>
+                                        <p>Cuando la base supera este tope, la comisión se calcula sobre el tope.</p>
+                                    </div>
+                                </group>
+                            </group>
+                        </page>
+                        
+                        <page string="Ayuda y Documentación">
+                            <group>
+                                <group string="Fórmulas de Cálculo">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h4>AFP - Descuentos del Trabajador</h4>
+                                            <ul class="list-unstyled">
+                                                <li><strong>Base:</strong> Total Ingresos - Bonificaciones</li>
+                                                <li><strong>Fondo:</strong> Base × 10%</li>
+                                                <li><strong>Seguro:</strong> Base × 1.37% (con tope)</li>
+                                                <li><strong>Comisión:</strong> Base × % según tipo</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h4>Aportes del Empleador</h4>
+                                            <ul class="list-unstyled">
+                                                <li><strong>Base:</strong> Sueldo + Asig.Fam + Vacaciones</li>
+                                                <li><strong>Mínimo:</strong> RMV</li>
+                                                <li><strong>EsSalud:</strong> Base × 9%</li>
+                                                <li><strong>SCTR:</strong> Base × 1.23% (opcional)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Search para Configuración -->
+    <record id="view_hr_payroll_settings_search" model="ir.ui.view">
+        <field name="name">hr.payroll.settings.search</field>
+        <field name="model">hr.payroll.settings</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Configuraciones">
+                <field name="name"/>
+                <field name="year"/>
+                <filter string="Activas" name="active" domain="[('active','=',True)]"/>
+                <filter string="Inactivas" name="inactive" domain="[('active','=',False)]"/>
+                <separator/>
+                <filter string="Año Actual" name="current_year" 
+                        domain="[('year','=',context_today().year)]"/>
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Año" name="group_year" context="{'group_by':'year'}"/>
+                    <filter string="Estado" name="group_active" context="{'group_by':'active'}"/>
+                    <filter string="Compañía" name="group_company" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción para Configuración de Planilla -->
+    <record id="action_hr_payroll_settings" model="ir.actions.act_window">
+        <field name="name">Configuración de Planilla</field>
+        <field name="res_model">hr.payroll.settings</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_hr_payroll_settings_search"/>
+        <field name="context">{'search_default_active': 1, 'search_default_current_year': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear primera configuración de planilla
+            </p>
+            <p>
+                Configure los parámetros utilizados en los cálculos de planilla de sueldos.
+                Puede tener múltiples configuraciones, pero solo una puede estar activa a la vez.
+            </p>
+            <p>
+                Los parámetros incluyen RMV, UIT, porcentajes de ONP, EsSalud, SCTR y topes AFP.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menús de Configuración -->
+    <menuitem 
+        id="menu_hr_payroll_settings" 
+        name="Parámetros de Planilla"
+        parent="peruanita_payroll.menu_hr_payroll_configuration"
+        action="action_hr_payroll_settings"
+        sequence="5"/>
+</odoo>

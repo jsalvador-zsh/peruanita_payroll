@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Tree Editable para Líneas de Planilla -->
+    <record id="view_hr_payroll_line_list" model="ir.ui.view">
+        <field name="name">hr.payroll.line.list</field>
+        <field name="model">hr.payroll.line</field>
+        <field name="arch" type="xml">
+            <list string="Líneas de Planilla" editable="bottom" create="false">
+                <field name="sequence" widget="handle" />
+                <field name="employee_id" readonly="1" />
+                <field name="identification_id" readonly="1" />
+                <field name="job_id" readonly="1" optional="show" />
+                <field name="department_id" readonly="1" optional="hide" />
+
+                <!-- Días y Asistencia -->
+                <field name="worked_days" />
+                <field name="tardiness_count" optional="show" />
+                <field name="medical_rest_days" optional="hide" />
+                <field name="vacation_days" optional="hide" />
+
+                <!-- Ingresos -->
+                <field name="salary" widget="monetary" options="{'currency_field': 'currency_id'}"
+                    optional="show" />
+                <field name="family_allowance" widget="monetary"
+                    options="{'currency_field': 'currency_id'}" optional="hide" />
+                <field name="night_bonus" widget="monetary"
+                    options="{'currency_field': 'currency_id'}" optional="show" />
+                <field name="medical_rest_amount" widget="monetary"
+                    options="{'currency_field': 'currency_id'}" optional="hide" />
+                <field name="other_bonus" widget="monetary"
+                    options="{'currency_field': 'currency_id'}" optional="hide" />
+                <field name="vacation_amount" widget="monetary"
+                    options="{'currency_field': 'currency_id'}" optional="show" />
+                <field name="overtime_amount" widget="monetary"
+                    options="{'currency_field': 'currency_id'}" optional="show" />
+                <field name="total_income" widget="monetary"
+                    options="{'currency_field': 'currency_id'}"
+                    readonly="1" class="fw-bold text-primary" optional="show" />
+
+
+                <!-- Base Imponible -->
+                <field name="taxable_base" widget="monetary" readonly="1" optional="hide"
+                    class="text-info" />
+
+                <!-- Sistema de Pensiones -->
+                <field name="pension_system" readonly="1" optional="show" />
+                <field name="afp_id" readonly="1" optional="hide" />
+                <field name="commission_type" readonly="1" optional="hide" />
+
+                <!-- Descuentos AFP -->
+                <field name="afp_fund" widget="monetary" readonly="1" optional="hide" />
+                <field name="afp_insurance" widget="monetary" readonly="1" optional="hide" />
+                <field name="afp_commission" widget="monetary" readonly="1" optional="hide" />
+                <field name="afp_total" widget="monetary" readonly="1" optional="show" />
+
+                <!-- Descuento ONP -->
+                <field name="onp_discount" widget="monetary" readonly="1" optional="show" />
+
+                <!-- Otros Descuentos -->
+                <field name="advance_gratification" widget="monetary" optional="hide" />
+                <field name="fifth_category" widget="monetary" optional="hide" />
+                <field name="tardiness_discount" widget="monetary" readonly="1" optional="show" />
+                <field name="judicial_retention" widget="monetary" optional="hide" />
+                <field name="advance_payment" widget="monetary" optional="show" />
+
+                <!-- Totales -->
+                <field name="total_discount" widget="monetary" readonly="1"
+                    class="fw-bold text-danger" />
+                <field name="net_pay" widget="monetary" readonly="1" class="fw-bold text-success" />
+
+                <!-- Aportes del Empleador -->
+                <field name="essalud" widget="monetary" readonly="1" optional="show" />
+                <field name="sctr" widget="monetary" readonly="1" optional="hide" />
+                <field name="total_employer_contribution" widget="monetary" readonly="1"
+                    optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form para Planilla Mensual -->
+    <record id="view_hr_payroll_monthly_form" model="ir.ui.view">
+        <field name="name">hr.payroll.monthly.form</field>
+        <field name="model">hr.payroll.monthly</field>
+        <field name="arch" type="xml">
+            <form string="Planilla Mensual">
+                <header>
+                    <button name="action_generate_lines" type="object" string="Generar Líneas"
+                        class="btn-primary" invisible="state != 'draft'"
+                        confirm="¿Desea generar las líneas de planilla? Esto eliminará las líneas existentes." />
+                    <button name="action_calculate" type="object" string="Calcular"
+                        class="btn-primary" invisible="state not in ['draft','calculated']" />
+                    <button name="action_validate" type="object" string="Validar"
+                        class="btn-success" invisible="state != 'calculated'" />
+                    <button name="action_mark_as_paid" type="object" string="Marcar como Pagado"
+                        class="btn-warning" invisible="state != 'validated'" />
+                    <button name="action_set_to_draft" type="object" string="Volver a Borrador"
+                        invisible="state not in ['calculated','validated']"
+                        confirm="¿Está seguro de regresar a borrador? Se perderán las validaciones." />
+                    <button name="action_cancel" type="object" string="Cancelar"
+                        invisible="state not in ['draft','calculated','validated']"
+                        confirm="¿Está seguro de cancelar esta planilla?" />
+                    <field name="state" widget="statusbar"
+                        statusbar_visible="draft,calculated,validated,paid" />
+                </header>
+                <!-- Resumen de pago -->
+                <div class="alert alert-info" role="alert" invisible="state != 'validated'">
+                    <strong><i class="fa fa-exclamation-circle" aria-hidden="true"></i> Planilla
+                    Validada:</strong> Esta planilla está validada y no se puede modificar. Complete
+                    la información de pago para marcar como pagado. </div>
+                <div class="alert alert-success" role="alert" invisible="state != 'paid'">
+                    <strong><i class="fa fa-check-circle" aria-hidden="true"></i> Planilla Pagada:</strong>
+                    Esta planilla ha sido pagada y es de solo lectura. </div>
+                <sheet>
+                    <widget name="web_ribbon" title="PAGADO" bg_color="text-bg-success"
+                        invisible="state != 'paid'" />
+                    <widget name="web_ribbon" title="CANCELADO" bg_color="text-bg-danger"
+                        invisible="state != 'cancelled'" />
+                    <div class="oe_title">
+                        <span class="o_form_label" invisible="state == 'draft'">Registro de nómina
+                            mensual </span>
+                        <h1 class="d-flex">
+                            <field name="name" readonly="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date_period" />
+                            <field name="date_from" readonly="1" />
+                            <field name="date_to" readonly="1" />
+                        </group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company" />
+                            <field name="employee_count" />
+                            <field name="currency_id" readonly="1" />
+                        </group>
+                    </group>
+                    <!-- Información de Control de Estados -->
+                    <group>
+                        <group string="Control de Estados"
+                            invisible="state in ('draft','calculated')">
+                            <field name="validated_by" readonly="1" invisible="not validated_by" />
+                            <field name="validated_date" readonly="1" invisible="not validated_date" />
+                            <field name="paid_by" readonly="1" invisible="not paid_by" />
+                            <field name="paid_date" readonly="1" invisible="not paid_date" />
+                        </group>
+                        <!-- Información de Pago -->
+                        <group string="Información de Pago"
+                            invisible="state not in ('validated','paid')">
+                            <field name="payment_method" />
+                            <field name="payment_reference"
+                                placeholder="Ej: Transferencia N° 001-2025" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Líneas de Planilla">
+                            <field name="payroll_line_ids">
+                                <list>
+                                    <field name="sequence" widget="handle" />
+                                    <field name="employee_id" readonly="1" class="col-employee" />
+                                    <field name="identification_id" readonly="1" />
+                                    <field name="job_id" readonly="1" optional="show"
+                                        class="col-job" />
+                                    <field name="department_id" readonly="1" optional="hide" />
+
+                                    <!-- Días y Asistencia -->
+                                    <field name="worked_days" />
+                                    <field name="tardiness_count" optional="show" />
+                                    <field name="medical_rest_days" optional="hide" />
+                                    <field name="vacation_days" optional="hide" />
+
+                                    <!-- Ingresos -->
+                                    <field name="salary" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="show" />
+                                    <field name="family_allowance" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="hide" />
+                                    <field name="night_bonus" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="show" />
+                                    <field name="medical_rest_amount" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="hide" />
+                                    <field name="other_bonus" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="hide" />
+                                    <field name="vacation_amount" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="show" />
+                                    <field name="overtime_amount" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}" optional="show" />
+                                    <field name="total_income" widget="monetary"
+                                        options="{'currency_field': 'currency_id'}"
+                                        readonly="1" class="fw-bold text-primary" optional="show" />
+
+
+                                    <!-- Base Imponible -->
+                                    <field name="taxable_base" widget="monetary" readonly="1"
+                                        optional="hide"
+                                        class="text-info" />
+
+                                    <!-- Sistema de Pensiones -->
+                                    <field name="pension_system" readonly="1" optional="show" />
+                                    <field name="afp_id" readonly="1" optional="hide" />
+                                    <field name="commission_type" readonly="1" optional="hide" />
+
+                                    <!-- Descuentos AFP -->
+                                    <field name="afp_fund" widget="monetary" readonly="1"
+                                        optional="hide" />
+                                    <field name="afp_insurance" widget="monetary" readonly="1"
+                                        optional="hide" />
+                                    <field name="afp_commission" widget="monetary" readonly="1"
+                                        optional="hide" />
+                                    <field name="afp_total" widget="monetary" readonly="1"
+                                        optional="show" />
+
+                                    <!-- Descuento ONP -->
+                                    <field name="onp_discount" widget="monetary" readonly="1"
+                                        optional="show" />
+
+                                    <!-- Otros Descuentos -->
+                                    <field name="advance_gratification" widget="monetary"
+                                        optional="hide" />
+                                    <field name="fifth_category" widget="monetary" optional="hide" />
+                                    <field name="tardiness_discount" widget="monetary" readonly="1"
+                                        optional="show" />
+                                    <field name="judicial_retention" widget="monetary"
+                                        optional="hide" />
+                                    <field name="advance_payment" widget="monetary" optional="show" />
+
+                                    <!-- Totales -->
+                                    <field name="total_discount" widget="monetary" readonly="1"
+                                        class="fw-bold text-danger" />
+                                    <field name="net_pay" widget="monetary" readonly="1"
+                                        class="fw-bold text-success" />
+
+                                    <!-- Aportes del Empleador -->
+                                    <field name="essalud" widget="monetary" readonly="1"
+                                        optional="show" />
+                                    <field name="sctr" widget="monetary" readonly="1"
+                                        optional="hide" />
+                                    <field name="total_employer_contribution" widget="monetary"
+                                        readonly="1"
+                                        optional="hide" />
+                                    <!-- BOTÓN DE BOLETA DE PAGO -->
+                                    <button name="action_print_payslip" type="object"
+                                        string="Boleta PDF"
+                                        class="btn-primary btn-sm" icon="fa-file-pdf-o"
+                                        title="Descargar Boleta de Pago" />
+                                </list>
+                            </field>
+                            <group name="note_group" col="6" class="mt-2 mt-md-0">
+                                <group colspan="4" class="order-1 order-lg-0">
+                                    <field colspan="2" name="notes" nolabel="1"
+                                        placeholder="Agregar notas o comentarios sobre esta planilla..." />
+                                </group>
+                                <group
+                                    class="oe_subtotal_footer order-0 order-lg-1 flex-column gap-0"
+                                    colspan="2">
+                                    <field name="total_income" widget="monetary" class="font-bold" />
+                                    <field name="total_employee_discount" widget="monetary"
+                                        class="font-bold" />
+                                    <field name="total_net_pay" widget="monetary"
+                                        class="oe_subtotal_footer_separator font-bold" />
+                                    <field name="total_employer_contribution" widget="monetary"
+                                        class="font-bold" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Tree para Planilla Mensual -->
+    <record id="view_hr_payroll_monthly_list" model="ir.ui.view">
+        <field name="name">hr.payroll.monthly.list</field>
+        <field name="model">hr.payroll.monthly</field>
+        <field name="arch" type="xml">
+            <list string="Planillas Mensuales">
+                <field name="name" />
+                <field name="date_period" />
+                <field name="employee_count" optional="show" />
+                <field name="total_income" widget="monetary" optional="show" />
+                <field name="total_employee_discount" widget="monetary" optional="show" />
+                <field name="total_net_pay" widget="monetary" optional="show" />
+                <field name="total_employer_contribution" widget="monetary" optional="show" />
+                <field name="total_employer_cost" widget="monetary" class="font-bold"
+                    optional="show" />
+                <field name="validated_by" optional="hide" />
+                <field name="paid_by" optional="hide" />
+                <field name="payment_method" optional="show" />
+                <field name="state" widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-primary="state == 'calculated'"
+                    decoration-warning="state == 'validated'"
+                    decoration-success="state == 'paid'"
+                    decoration-danger="state == 'cancelled'" optional="show" />
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Search para Planilla Mensual -->
+    <record id="view_hr_payroll_monthly_search" model="ir.ui.view">
+        <field name="name">hr.payroll.monthly.search</field>
+        <field name="model">hr.payroll.monthly</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Planillas">
+                <field name="name" />
+                <field name="date_period" />
+                <filter string="Borrador" name="draft" domain="[('state','=','draft')]" />
+                <filter string="Calculado" name="calculated" domain="[('state','=','calculated')]" />
+                <filter string="Validado" name="validated" domain="[('state','=','validated')]" />
+                <filter string="Pagado" name="paid" domain="[('state','=','paid')]" />
+                <separator />
+                <filter string="Mes Actual" name="current_month"
+                    domain="[('date_period','&gt;=',(datetime.datetime.now() - datetime.timedelta(days=30)).strftime('%Y-%m-01'))]" />
+                <group expand="0" string="Agrupar Por">
+                    <filter string="Estado" name="group_state" context="{'group_by':'state'}" />
+                    <filter string="Periodo" name="group_period"
+                        context="{'group_by':'date_period'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción para Planilla Mensual -->
+    <record id="action_hr_payroll_monthly" model="ir.actions.act_window">
+        <field name="name">Planillas Mensuales</field>
+        <field name="res_model">hr.payroll.monthly</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_hr_payroll_monthly_search" />
+        <field name="context">{'search_default_current_month': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear primera planilla mensual
+            </p>
+            <p>
+                Gestione las planillas mensuales de sus empleados.
+                El sistema calculará automáticamente AFP, ONP, EsSalud y otros descuentos usando los
+                parámetros actualizados 2025.
+            </p>
+        </field>
+    </record>
+
+    <!-- Wizard para marcar como pagado -->
+    <record id="view_payroll_payment_wizard" model="ir.ui.view">
+        <field name="name">payroll.payment.wizard</field>
+        <field name="model">hr.payroll.monthly</field>
+        <field name="arch" type="xml">
+            <form string="Marcar como Pagado">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Confirmar Pago de Planilla</h1>
+                        <h2 class="text-muted">
+                            <field name="name" readonly="1" />
+                        </h2>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="payment_method" required="1" />
+                            <field name="payment_reference"
+                                placeholder="Número de transferencia, cheque, etc." />
+                        </group>
+                        <group>
+                            <field name="total_net_pay" widget="monetary" readonly="1" />
+                            <field name="employee_count" readonly="1" />
+                        </group>
+                    </group>
+
+                    <div class="alert alert-warning" role="alert">
+                        <h4>⚠️ Confirmación de Pago</h4>
+                        <p>Una vez marcada como pagada, la planilla no podrá ser modificada ni
+                            eliminada.</p>
+                        <p>Asegúrese de que todos los pagos han sido procesados correctamente.</p>
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_mark_as_paid" string="Confirmar Pago" type="object"
+                        class="btn-primary" />
+                    <button string="Cancelar" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Form para Configuración de Planilla (Wizard) -->
+    <record id="view_hr_payroll_config_form" model="ir.ui.view">
+        <field name="name">hr.payroll.config.form</field>
+        <field name="model">hr.payroll.config</field>
+        <field name="arch" type="xml">
+            <form string="Configuración de Planilla">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Configuración de Parámetros de Planilla</h1>
+                        <p>Configure los parámetros utilizados en los cálculos de planilla</p>
+                    </div>
+
+                    <group>
+                        <group string="Parámetros Generales">
+                            <field name="rmv_amount" widget="monetary" />
+                            <field name="uit_amount" widget="monetary" />
+                            <field name="family_allowance_amount" widget="monetary" />
+                        </group>
+                        <group string="Porcentajes de Descuentos">
+                            <field name="onp_percentage" />
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Aportes del Empleador">
+                            <field name="essalud_percentage" />
+                            <field name="sctr_percentage" />
+                        </group>
+                        <group string="Topes y Límites">
+                            <field name="tope_prima_amount" widget="monetary" />
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="save_configuration" string="Guardar Configuración" type="object"
+                        class="btn-primary" />
+                    <button string="Cancelar" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para Configuración de Planilla (Wizard) -->
+    <record id="action_hr_payroll_config" model="ir.actions.act_window">
+        <field name="name">Configuración de Planilla</field>
+        <field name="res_model">hr.payroll.config</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_hr_payroll_config_form" />
+    </record>
+
+    <!-- Vista Form para Línea de Planilla (para edición individual) -->
+    <record id="view_hr_payroll_line_form" model="ir.ui.view">
+        <field name="name">hr.payroll.line.form</field>
+        <field name="model">hr.payroll.line</field>
+        <field name="arch" type="xml">
+            <form string="Línea de Planilla">
+                <sheet>
+                    <group>
+                        <group string="Información del Empleado">
+                            <field name="employee_id" readonly="1" />
+                            <field name="identification_id" />
+                            <field name="contract_id" readonly="1" />
+                            <field name="job_id" />
+                            <field name="department_id" />
+                        </group>
+                        <group string="Sistema de Pensiones">
+                            <field name="pension_system" />
+                            <field name="afp_id" invisible="pension_system != 'afp'" />
+                            <field name="cuspp" invisible="pension_system != 'afp'" />
+                            <field name="commission_type" invisible="pension_system != 'afp'" />
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Días y Asistencia">
+                            <group>
+                                <group>
+                                    <field name="worked_days" />
+                                    <field name="tardiness_count" />
+                                </group>
+                                <group>
+                                    <field name="medical_rest_days" />
+                                    <field name="medical_rest_from"
+                                        invisible="medical_rest_days == 0" />
+                                    <field name="medical_rest_to" invisible="medical_rest_days == 0" />
+                                    <field name="vacation_days" />
+                                    <field name="vacation_from" invisible="vacation_days == 0" />
+                                    <field name="vacation_to" invisible="vacation_days == 0" />
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Ingresos">
+                            <group>
+                                <group>
+                                    <field name="salary" widget="monetary" />
+                                    <field name="family_allowance" widget="monetary" />
+                                    <field name="night_bonus" widget="monetary" />
+                                    <field name="medical_rest_amount" widget="monetary" />
+                                </group>
+                                <group>
+                                    <field name="other_bonus" widget="monetary" />
+                                    <field name="vacation_amount" widget="monetary" />
+                                    <field name="overtime_amount" widget="monetary" />
+                                    <field name="total_income" widget="monetary" class="fw-bold" />
+                                </group>
+                            </group>
+                            <separator string="Base Imponible" />
+                            <group>
+                                <field name="taxable_base" widget="monetary"
+                                    class="fw-bold text-info" readonly="1" />
+                                <div class="text-muted">
+                                    <i>La base imponible se calcula excluyendo las bonificaciones
+                                        extraordinarias</i>
+                                </div>
+                            </group>
+                        </page>
+
+                        <page string="Descuentos">
+                            <group>
+                                <group string="Sistema de Pensiones">
+                                    <field name="afp_fund" widget="monetary"
+                                        invisible="pension_system != 'afp'" />
+                                    <field name="afp_insurance" widget="monetary"
+                                        invisible="pension_system != 'afp'" />
+                                    <field name="afp_commission" widget="monetary"
+                                        invisible="pension_system != 'afp'" />
+                                    <field name="afp_total" widget="monetary"
+                                        invisible="pension_system != 'afp'" class="fw-bold" />
+                                    <field name="onp_discount" widget="monetary"
+                                        invisible="pension_system != 'onp'" class="fw-bold" />
+                                </group>
+                                <group string="Otros Descuentos">
+                                    <field name="advance_gratification" widget="monetary" />
+                                    <field name="fifth_category" widget="monetary" />
+                                    <field name="tardiness_discount" widget="monetary" />
+                                    <field name="judicial_retention" widget="monetary" />
+                                    <field name="advance_payment" widget="monetary" />
+                                    <field name="total_discount" widget="monetary" class="fw-bold" />
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Aportes del Empleador">
+                            <group>
+                                <group>
+                                    <field name="essalud" widget="monetary" />
+                                    <field name="sctr" widget="monetary" />
+                                    <field name="total_employer_contribution" widget="monetary"
+                                        class="fw-bold" />
+                                </group>
+                                <group>
+                                    <div class="text-muted">
+                                        <p><strong>Base para aportes:</strong> Sueldo + Asignación
+                                            Familiar + Vacaciones</p>
+                                        <p><strong>Mínimo:</strong> RMV vigente</p>
+                                    </div>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Resumen">
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_income" widget="monetary"
+                                    class="fw-bold text-primary" />
+                                <field name="total_discount" widget="monetary"
+                                    class="fw-bold text-danger" />
+                                <separator />
+                                <field name="net_pay" widget="monetary"
+                                    class="fw-bold text-success oe_subtotal_footer_separator" />
+                            </group>
+                            <separator string="Resumen del Empleador" />
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_employer_contribution" widget="monetary"
+                                    class="fw-bold text-warning" />
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Menú Principal -->
+    <menuitem
+        id="menu_hr_payroll_root"
+        name="Nómina"
+        web_icon="peruanita_payroll,static/description/icon_module.png"
+        sequence="75" />
+
+    <!-- Menú de Planillas -->
+    <menuitem
+        id="menu_hr_payroll_monthly"
+        name="Planillas Mensuales"
+        parent="menu_hr_payroll_root"
+        action="action_hr_payroll_monthly"
+        sequence="10" />
+
+    <!-- Menú de Configuración -->
+    <menuitem
+        id="menu_hr_payroll_configuration"
+        name="Configuración"
+        parent="menu_hr_payroll_root"
+        sequence="90" />
+
+    <!-- Submenu de Configuración de Parámetros (Wizard - Solo Managers) -->
+    <menuitem
+        id="menu_hr_payroll_config_params"
+        name="Configuración Rápida (Wizard)"
+        parent="menu_hr_payroll_configuration"
+        action="action_hr_payroll_config"
+        sequence="15"
+        groups="hr.group_hr_manager" />
+</odoo>

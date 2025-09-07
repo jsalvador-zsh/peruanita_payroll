@@ -1,0 +1,16 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hr_payroll_monthly_user,hr.payroll.monthly.user,model_hr_payroll_monthly,base.group_user,1,0,0,0
+access_hr_payroll_monthly_officer,hr.payroll.monthly.officer,model_hr_payroll_monthly,hr.group_hr_user,1,1,1,0
+access_hr_payroll_monthly_manager,hr.payroll.monthly.manager,model_hr_payroll_monthly,hr.group_hr_manager,1,1,1,1
+access_hr_payroll_line_user,hr.payroll.line.user,model_hr_payroll_line,base.group_user,1,0,0,0
+access_hr_payroll_line_officer,hr.payroll.line.officer,model_hr_payroll_line,hr.group_hr_user,1,1,1,0
+access_hr_payroll_line_manager,hr.payroll.line.manager,model_hr_payroll_line,hr.group_hr_manager,1,1,1,1
+access_hr_afp_pension_user,hr.afp.pension.user,model_hr_afp_pension,base.group_user,1,0,0,0
+access_hr_afp_pension_officer,hr.afp.pension.officer,model_hr_afp_pension,hr.group_hr_user,1,1,1,0
+access_hr_afp_pension_manager,hr.afp.pension.manager,model_hr_afp_pension,hr.group_hr_manager,1,1,1,1
+access_hr_payroll_config_user,hr.payroll.config.user,model_hr_payroll_config,base.group_user,1,0,0,0
+access_hr_payroll_config_officer,hr.payroll.config.officer,model_hr_payroll_config,hr.group_hr_user,1,1,1,0
+access_hr_payroll_config_manager,hr.payroll.config.manager,model_hr_payroll_config,hr.group_hr_manager,1,1,1,1
+access_hr_payroll_settings_user,hr.payroll.settings.user,model_hr_payroll_settings,base.group_user,1,0,0,0
+access_hr_payroll_settings_officer,hr.payroll.settings.officer,model_hr_payroll_settings,hr.group_hr_user,1,1,1,0
+access_hr_payroll_settings_manager,hr.payroll.settings.manager,model_hr_payroll_settings,hr.group_hr_manager,1,1,1,1
