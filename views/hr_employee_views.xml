@@ -16,6 +16,7 @@
                                 required="pension_system == 'afp'" />
                             <field name="cuspp" invisible="pension_system != 'afp'" />
                             <field name="commission_type" invisible="pension_system != 'afp'" />
+                            <field name="exempt_afp_commission" invisible="pension_system != 'afp'" />
                         </group>
                         <group string="Beneficios y Retenciones">
                             <field name="has_family_allowance" />
@@ -26,6 +27,20 @@
                                 invisible="not is_judicial_retention" />
                         </group>
                     </group>
+                    
+                    <!-- Información adicional sobre exención de comisión AFP -->
+                    <div class="alert alert-info" role="alert" invisible="pension_system != 'afp' or not exempt_afp_commission">
+                        <h4 class="alert-heading">
+                            <i class="fa fa-info-circle"/> Exención de Comisión AFP
+                        </h4>
+                        <p>
+                            <strong>Este empleado está exento del pago de comisión AFP.</strong>
+                        </p>
+                        <p>
+                            Solo se descontará el fondo de pensiones y el seguro.
+                            La comisión AFP será de S/ 0.00 en todas las planillas.
+                        </p>
+                    </div>
                 </page>
             </xpath>
         </field>

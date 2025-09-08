@@ -18,6 +18,13 @@ class HrEmployee(models.Model):
         ('mixed', 'Mixta')
     ], string='Tipo Comisión AFP')
     
+    # Campo para exención de comisión AFP
+    exempt_afp_commission = fields.Boolean(
+        string='Exento de Comisión AFP', 
+        default=False, 
+        help="Si está marcado, no se cobrará comisión AFP a este empleado, solo el fondo (10%) y seguro (1.37%)"
+    )
+    
     # Datos adicionales
     has_family_allowance = fields.Boolean(string='Asignación Familiar', default=False)
     is_judicial_retention = fields.Boolean(string='Retención Judicial', default=False)
@@ -30,3 +37,4 @@ class HrEmployee(models.Model):
             self.afp_id = False
             self.cuspp = False
             self.commission_type = False
+            self.exempt_afp_commission = False

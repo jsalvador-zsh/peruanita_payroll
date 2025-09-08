@@ -23,6 +23,7 @@ class HrPayrollLine(models.Model):
     afp_id = fields.Many2one(related='employee_id.afp_id', string='AFP', readonly=True)
     cuspp = fields.Char(related='employee_id.cuspp', string='CUSPP', readonly=True)
     commission_type = fields.Selection(related='employee_id.commission_type', string='Tipo Comisión', readonly=True)
+    exempt_afp_commission = fields.Boolean(related='employee_id.exempt_afp_commission', string='Exento Comisión AFP', readonly=True)
     
     # Días y asistencia
     worked_days = fields.Integer(string='Días Trabajados', default=30)
@@ -156,18 +157,35 @@ class HrPayrollLine(models.Model):
             # Mantener taxable_base para compatibilidad (usar base AFP)
             line.taxable_base = line.afp_taxable_base
     
-    @api.depends('taxable_base', 'pension_system', 'afp_id', 'commission_type')
+    @api.depends('taxable_base', 'pension_system', 'afp_id', 'commission_type', 'exempt_afp_commission')
     def _compute_pension_discounts(self):
         for line in self:
             if line.pension_system == 'afp' and line.afp_id:
-                # Usar el método del modelo AFP para calcular descuentos
-                commission_type = line.commission_type or line.afp_id.commission_type
-                discounts = line.afp_id.calculate_afp_discounts(line.taxable_base, commission_type)
+                # Calcular fondo y seguro normalmente
+                fund_discount = line.taxable_base * (line.afp_id.fund_percentage / 100)
+                insurance_discount = line.taxable_base * (line.afp_id.insurance_percentage / 100)
                 
-                line.afp_fund = discounts['fund']
-                line.afp_insurance = discounts['insurance']
-                line.afp_commission = discounts['commission']
-                line.afp_total = discounts['total']
+                # Calcular comisión según exención
+                if line.exempt_afp_commission:
+                    # Si está exento, comisión = 0
+                    commission_discount = 0.0
+                else:
+                    # Calcular comisión normal según tipo
+                    commission_type = line.commission_type or line.afp_id.commission_type
+                    
+                    if commission_type == 'mixed' and line.taxable_base > line.afp_id.tope_amount:
+                        # Si es mixta y supera el tope, usar el tope para la comisión
+                        commission_discount = line.afp_id.tope_amount * (line.afp_id.commission_mixed_percentage / 100)
+                    elif commission_type == 'mixed':
+                        commission_discount = line.taxable_base * (line.afp_id.commission_mixed_percentage / 100)
+                    else:
+                        # Flujo
+                        commission_discount = line.taxable_base * (line.afp_id.commission_flow_percentage / 100)
+                
+                line.afp_fund = round(fund_discount, 2)
+                line.afp_insurance = round(insurance_discount, 2)
+                line.afp_commission = round(commission_discount, 2)
+                line.afp_total = round(fund_discount + insurance_discount + commission_discount, 2)
                 line.onp_discount = 0.0
                 
             elif line.pension_system == 'onp':
