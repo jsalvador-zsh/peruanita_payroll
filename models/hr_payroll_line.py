@@ -384,6 +384,7 @@ class HrPayrollLine(models.Model):
             'employee_type': 'EMPLEADO',
             'department': clean_text(self.department_id.name if self.department_id else '') or 'PRODUCCIÓN',
             'pension_system': pension_text,
+            'pension_name': clean_text(self.afp_id.name) or '',
             'cuspp': clean_text(self.cuspp) or '',
             
             # Período
