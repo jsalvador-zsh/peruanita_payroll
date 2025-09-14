@@ -251,7 +251,7 @@ class HrPayrollLine(models.Model):
             settings = line.env['hr.payroll.settings'].get_current_settings()
             
             # EsSalud: Base = Sueldo + Vacaciones (como en Excel)
-            essalud_base = line.salary + line.vacation_amount
+            essalud_base = line.salary + line.vacation_amount + line.family_allowance
             essalud_percentage = line.contract_id.essalud_percentage if line.contract_id else settings.essalud_percentage
             if essalud_percentage == 0:
                 essalud_percentage = settings.essalud_percentage
@@ -397,6 +397,7 @@ class HrPayrollLine(models.Model):
             
             # Ingresos
             'basic_salary': f"{self.taxable_base:.2f}",
+            'salary': f"{self.salary:.2f}",
             'family_allowance': f"{self.family_allowance:.2f}",
             'vacation_pay': f"{self.vacation_amount:.2f}",
             'productivity_bonus': f"{self.other_bonus:.2f}",
