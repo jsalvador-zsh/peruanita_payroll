@@ -5,6 +5,9 @@ from odoo import models, fields, api
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
     
+    # Fecha de inicio
+    date_init_work = fields.Date(string='Fecha de inicio', tracking=True)
+    
     # Sistema de Pensiones
     pension_system = fields.Selection([
         ('onp', 'ONP'),

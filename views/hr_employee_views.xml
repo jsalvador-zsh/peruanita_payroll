@@ -10,6 +10,14 @@
             <xpath expr="//page[@name='hr_settings']" position="after">
                 <page string="Datos de Planilla" name="payroll_data">
                     <group>
+                        <group string="Información adicional">
+                            <field name="date_init_work" />
+                        </group>
+                        <group>
+                        
+                        </group>
+                    </group>
+                    <group>
                         <group string="Sistema de Pensiones">
                             <field name="pension_system" />
                             <field name="afp_id" invisible="pension_system != 'afp'"
